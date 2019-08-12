@@ -44,8 +44,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:capitalize="words"
                 android:fontFamily="@font/ubuntu_light"
-                android:hint="QIR Inspector"
+                android:hint="QIR Inspector *"
                 android:inputType="textPersonName"
                 android:textSize="14sp" />
 
@@ -70,7 +71,7 @@
                 android:layout_weight="1"
                 android:ems="10"
                 android:fontFamily="@font/ubuntu_light"
-                android:hint="Control No."
+                android:hint="Control No. *"
                 android:inputType="textPersonName"
                 android:textSize="14sp" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -152,7 +153,7 @@
                     android:layout_weight="1"
                     android:ems="10"
                     android:fontFamily="@font/ubuntu_light"
-                    android:hint="Model"
+                    android:hint="Model *"
                     android:inputType="textPersonName|textCapCharacters"
                     android:textSize="14sp" />
 
@@ -172,7 +173,7 @@
                     android:ems="10"
                     android:fontFamily="@font/ubuntu_light"
                     android:hint="Product Code"
-                    android:inputType="textPersonName|textCapWords"
+                    android:inputType="textPersonName|textCapWords|textCapCharacters"
                     android:textSize="14sp" />
 
             </com.google.android.material.textfield.TextInputLayout>
@@ -363,6 +364,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:capitalize="sentences"
                 android:ems="10"
                 android:fontFamily="@font/ubuntu_light"
                 android:gravity="start|top"
@@ -512,6 +514,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:capitalize="words"
                 android:fontFamily="@font/ubuntu_light"
                 android:hint="Noted By"
                 android:textSize="14sp" />
@@ -534,6 +537,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:capitalize="words"
                 android:fontFamily="@font/ubuntu_light"
                 android:hint="Approved By"
                 android:textSize="14sp" />

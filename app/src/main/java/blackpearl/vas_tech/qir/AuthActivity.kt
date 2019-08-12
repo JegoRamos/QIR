@@ -11,6 +11,7 @@ import androidx.biometric.BiometricPrompt
 import androidx.core.hardware.fingerprint.FingerprintManagerCompat
 import androidx.fragment.app.FragmentActivity
 import blackpearl.vas_tech.qir.utils.EXTRA_AUTH_ERROR
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_auth.*
 import java.util.concurrent.Executors
 import kotlin.system.exitProcess
@@ -42,27 +43,16 @@ class AuthActivity : AppCompatActivity() {
                         // Do nothing
                     }
                     BiometricPrompt.ERROR_LOCKOUT -> {
-                            val errorTxt = "The app is temporarily locked. Please try again later."
-                            val intent = Intent(activity, AuthErrorActivity::class.java)
-                            intent.putExtra(EXTRA_AUTH_ERROR, errorTxt)
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-                            startActivity(intent)
+                        val errorTxt = "The app is temporarily locked. Please try again later."
+                        Snackbar.make(fingerPrintImg, errorTxt, Snackbar.LENGTH_LONG).show()
                     }
                     BiometricPrompt.ERROR_LOCKOUT_PERMANENT -> {
-                            val intent = Intent(activity, AuthErrorActivity::class.java)
-                            val errorTxt = """
-                            The app permanently locked the fingerprint scanner.
-                            Re-enable by entering the PIN or PATTERN in the device's SETTINGS.
-                        """.trimIndent()
-                            intent.putExtra(EXTRA_AUTH_ERROR, errorTxt)
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-                            startActivity(intent)
+                        val errorTxt = "The app is permanently locked. Re-enable by entering the " +
+                                "PIN or PATTERN."
+                        Snackbar.make(fingerPrintImg, errorTxt, Snackbar.LENGTH_LONG).show()
                     }
                     else -> {
-                            val intent = Intent(activity, AuthErrorActivity::class.java)
-                            intent.putExtra(EXTRA_AUTH_ERROR, errString)
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-                            startActivity(intent)
+                        Snackbar.make(fingerPrintImg, errString, Snackbar.LENGTH_LONG).show()
                     }
                 }
             }
@@ -70,24 +60,16 @@ class AuthActivity : AppCompatActivity() {
             override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                 super.onAuthenticationSucceeded(result)
                 // Called when a biometric is recognized.
-                val pref = getSharedPreferences("ActivityPREF", Context.MODE_PRIVATE)
-                if (pref.getBoolean("activity_executed", false)) {
-                    val intent = Intent(activity, QIRListActivity::class.java)
-                    startActivity(intent)
-                    finish()
-                } else {
-                    val ed = pref.edit()
-                    ed.putBoolean("activity_executed", true)
-                    ed.apply()
-                }
-                Log.i("MainActivity", "Okay!")
+                val intent = Intent(activity, QIRListActivity::class.java)
+                startActivity(intent)
+                finish()
             }
 
             override fun onAuthenticationFailed() {
                 super.onAuthenticationFailed()
                 // Called when a biometric is valid but not recognized.
                 // Just logging. Letting the default behaviour do its job
-                Log.i("MainActivity", "Don't know you")
+                Log.d("MainActivity", "Don't know you")
             }
         })
 
@@ -107,11 +89,8 @@ class AuthActivity : AppCompatActivity() {
             if (isAvailable(this)) {
                 biometricPrompt.authenticate(promptInfo)
             } else {
-                Toast.makeText(
-                    this,
-                    "No fingerprints enrolled or Biometrics may not be supported by the device",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Snackbar.make(fingerPrintImg, "No fingerprints enrolled or Biometrics may not be supported by the device",
+                    Snackbar.LENGTH_LONG).show()
             }
         }
     }

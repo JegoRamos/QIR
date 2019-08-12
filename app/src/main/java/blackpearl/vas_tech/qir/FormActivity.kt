@@ -168,10 +168,11 @@ class FormActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
         }
 
         saveAndCreateBtn.setOnClickListener {
-            saveToDatabase()
-            val intent = Intent(this, FormActivity::class.java)
-            startActivity(intent)
-            finish()
+            if(saveToDatabase()) {
+                val intent = Intent(this, FormActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
         }
 
     }
@@ -196,28 +197,28 @@ class FormActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
                 R.id.image1 -> {
                     image1.setImageResource(R.drawable.image_placeholder)
                     if (image1Uri != null) {
-                        Toast.makeText(this, "Image removed", Toast.LENGTH_SHORT).show()
+                        Snackbar.make(image1, "Image removed", Snackbar.LENGTH_SHORT).show()
                     }
                     image1Uri = null
                 }
                 R.id.image2 -> {
                     image2.setImageResource(R.drawable.image_placeholder)
                     if (image2Uri != null) {
-                        Toast.makeText(this, "Image removed", Toast.LENGTH_SHORT).show()
+                        Snackbar.make(image2, "Image removed", Snackbar.LENGTH_SHORT).show()
                     }
                     image2Uri = null
                 }
                 R.id.image3 -> {
                     image3.setImageResource(R.drawable.image_placeholder)
                     if (image3Uri != null) {
-                        Toast.makeText(this, "Image removed", Toast.LENGTH_SHORT).show()
+                        Snackbar.make(image3, "Image removed", Snackbar.LENGTH_SHORT).show()
                     }
                     image3Uri = null
                 }
                 R.id.image4 -> {
                     image4.setImageResource(R.drawable.image_placeholder)
                     if (image4Uri != null) {
-                        Toast.makeText(this, "Image removed", Toast.LENGTH_SHORT).show()
+                        Snackbar.make(image4, "Image removed", Snackbar.LENGTH_SHORT).show()
                     }
                     image4Uri = null
                 }

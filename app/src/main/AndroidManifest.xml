@@ -19,7 +19,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".AuthErrorActivity" />
         <activity android:name=".FormActivity" />
         <activity
             android:name=".QIRListActivity"

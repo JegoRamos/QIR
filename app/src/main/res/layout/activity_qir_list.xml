@@ -21,13 +21,13 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/floatingActionButton2"
+        android:id="@+id/emailBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:clickable="true"
-        app:backgroundTint="#FF0097A7"
+        app:backgroundTint="#82B1FF"
         app:layout_constraintBottom_toBottomOf="@+id/addBtn"
         app:layout_constraintEnd_toStartOf="@+id/addBtn"
         app:layout_constraintHorizontal_bias="1.0"
@@ -46,13 +46,13 @@
         android:background="#FFFFFF"
         android:clickable="true"
         android:scaleType="centerCrop"
-        app:backgroundTint="#0097A7"
+        app:backgroundTint="#82B1FF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.95"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.85"
+        app:layout_constraintVertical_bias="0.95"
         app:srcCompat="@drawable/round_add_white_18dp" />
 
     <androidx.recyclerview.widget.RecyclerView
@@ -65,8 +65,10 @@
         android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/filterLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/filterLayout"
+        app:layout_constraintVertical_bias="1.0" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/filterLayout"

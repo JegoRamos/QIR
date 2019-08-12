@@ -4,13 +4,14 @@ import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_qir_list.*
 import java.text.SimpleDateFormat
 import java.util.*
 
 private const val TAG = "QIRListActivity"
+private const val DATE_FORMAT = "MMMM d, yyyy"
 class QIRListActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,8 +25,7 @@ class QIRListActivity : AppCompatActivity() {
             cal.set(Calendar.MONTH, monthOfYear)
             cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
 
-            val myFormat = "MMMM d, yyyy"
-            val sdf = SimpleDateFormat(myFormat, Locale.getDefault())
+            val sdf = SimpleDateFormat(DATE_FORMAT, Locale.getDefault())
             filterInp.setText(sdf.format(cal.time))
         }
         filterInp.setOnClickListener {
@@ -33,11 +33,10 @@ class QIRListActivity : AppCompatActivity() {
                 cal.get(Calendar.YEAR),
                 cal.get(Calendar.MONTH),
                 cal.get(Calendar.DAY_OF_MONTH))
-            datePickerDialog.datePicker.maxDate = cal.timeInMillis
+            datePickerDialog.datePicker.maxDate = Date().time
             datePickerDialog.show()
         }
-        val myFormat = "MMMM d, yyyy"
-        val sdf = SimpleDateFormat(myFormat, Locale.getDefault())
+        val sdf = SimpleDateFormat(DATE_FORMAT, Locale.getDefault())
         filterInp.setText(sdf.format(cal.time))
 
 
@@ -118,7 +117,7 @@ class QIRListActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        Toast.makeText(this, "Use the RECENT KEY to close the app", Toast.LENGTH_SHORT).show()
+        Snackbar.make(addBtn, "Use the RECENT Key to exit the app", Snackbar.LENGTH_SHORT).show()
         return
     }
 }
