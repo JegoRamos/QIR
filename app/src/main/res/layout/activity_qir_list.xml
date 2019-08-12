@@ -7,21 +7,33 @@
     tools:context=".QIRListActivity">
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/qirListTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="84dp"
+        android:layout_marginTop="32dp"
         android:layout_marginEnd="16dp"
         android:fontFamily="@font/ubuntu_light"
-        android:text="Dummy Search"
-        android:textAlignment="center"
-        android:textSize="18sp"
-        android:textStyle="bold"
+        android:text="QIR Report List"
+        android:textSize="36sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.855"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/floatingActionButton2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:clickable="true"
+        app:backgroundTint="#FF0097A7"
+        app:layout_constraintBottom_toBottomOf="@+id/addBtn"
+        app:layout_constraintEnd_toStartOf="@+id/addBtn"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/addBtn"
+        app:srcCompat="@android:drawable/ic_dialog_email" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/addBtn"
@@ -37,10 +49,50 @@
         app:backgroundTint="#0097A7"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.85"
+        app:layout_constraintHorizontal_bias="0.95"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.85"
         app:srcCompat="@drawable/round_add_white_18dp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/qirListRecyclerView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/filterLayout" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/filterLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:focusable="false"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/qirListTitle">
+
+        <EditText
+            android:id="@+id/filterInp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:focusableInTouchMode="false"
+            android:fontFamily="@font/ubuntu_light"
+            android:hint="Filter By"
+            android:inputType="date"
+            android:textAlignment="center"
+            android:textSize="14sp" />
+
+    </com.google.android.material.textfield.TextInputLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

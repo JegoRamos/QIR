@@ -113,6 +113,7 @@ class FormActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
         // Product Info
         val controlNo = "PETC-QIR/${Calendar.getInstance().get(Calendar.YEAR)}/"
         controlNoInp.setText(controlNo)
+
         modelInput.addTextChangedListener(object: TextWatcher {
             override fun afterTextChanged(p0: Editable?) {
                 // do nothing
