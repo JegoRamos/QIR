@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">QIR</string>
+    <string name="title_activity_qirlist">QIRListActivity</string>
+</resources>
