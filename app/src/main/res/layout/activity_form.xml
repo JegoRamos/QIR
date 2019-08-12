@@ -2,7 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/scrollView2"
+    android:id="@+id/scrollView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".FormActivity"
@@ -39,15 +39,16 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/qirreportTitle">
 
-            <EditText
+            <AutoCompleteTextView
                 android:id="@+id/qirInspectorInp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ems="10"
+                android:layout_weight="1"
                 android:fontFamily="@font/ubuntu_light"
                 android:hint="QIR Inspector"
                 android:inputType="textPersonName"
                 android:textSize="14sp" />
+
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -505,16 +506,15 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/ApprovedByLayout">
 
-            <EditText
+            <AutoCompleteTextView
                 android:id="@+id/notedByInp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:ems="10"
                 android:fontFamily="@font/ubuntu_light"
                 android:hint="Noted By"
-                android:inputType="textPersonName"
                 android:textSize="14sp" />
+
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -528,16 +528,15 @@
             app:layout_constraintStart_toStartOf="@+id/guideline"
             app:layout_constraintTop_toBottomOf="@+id/image4">
 
-            <EditText
+            <AutoCompleteTextView
                 android:id="@+id/approvedByInp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:ems="10"
                 android:fontFamily="@font/ubuntu_light"
                 android:hint="Approved By"
-                android:inputType="textPersonName"
                 android:textSize="14sp" />
+
         </com.google.android.material.textfield.TextInputLayout>
 
         <Button

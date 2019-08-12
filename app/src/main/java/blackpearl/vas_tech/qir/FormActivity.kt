@@ -9,47 +9,49 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.os.Environment.getExternalStoragePublicDirectory
+import android.provider.ContactsContract
 import android.provider.MediaStore
+import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.view.animation.AnimationUtils
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_form.*
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
+private val TAG = "FormActivity"
+
+// permission codes
+private const val IMAGE_PICK_CODE_1 = 1001
+private const val IMAGE_PICK_CODE_2 = 1002
+private const val IMAGE_PICK_CODE_3 = 1003
+private const val IMAGE_PICK_CODE_4 = 1004
+private const val CAMERA_CAPTURE_CODE_1 = 1005
+private const val CAMERA_CAPTURE_CODE_2 = 1006
+private const val CAMERA_CAPTURE_CODE_3 = 1007
+private const val CAMERA_CAPTURE_CODE_4 = 1008
+private const val GALLERY_PERMISSION_CODE = 1
+private const val CAMERA_PERMISSION_CODE = 2
+private const val CONTACTS_PERMISSION_CODE = 3
+
+// states
+private const val STATE_IMAGE1 = "StateImage1"
+private const val STATE_IMAGE2 = "StateImage2"
+private const val STATE_IMAGE3 = "StateImage3"
+private const val STATE_IMAGE4 = "StateImage4"
+private const val STATE_CURRENT_PHOTO_PATH = "MCurrentPhotoPath"
 
 class FormActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClickListener {
-    private val TAG = "FormActivity"
-
-    // permission codes
-    private val IMAGE_PICK_CODE_1 = 1001
-    private val IMAGE_PICK_CODE_2 = 1002
-    private val IMAGE_PICK_CODE_3 = 1003
-    private val IMAGE_PICK_CODE_4 = 1004
-    private val CAMERA_CAPTURE_CODE_1 = 1005
-    private val CAMERA_CAPTURE_CODE_2 = 1006
-    private val CAMERA_CAPTURE_CODE_3 = 1007
-    private val CAMERA_CAPTURE_CODE_4 = 1008
-    private val GALLERY_PERMISSION_CODE = 1
-    private val CAMERA_PERMISSION_CODE = 2
-
-    // states
-    private val STATE_IMAGE1 = "StateImage1"
-    private val STATE_IMAGE2 = "StateImage2"
-    private val STATE_IMAGE3 = "StateImage3"
-    private val STATE_IMAGE4 = "StateImage4"
-    private val STATE_CURRENT_PHOTO_PATH = "MCurrentPhotoPath"
-
     // imageUris
     private var image1Uri: String? = null
     private var image2Uri: String? = null
@@ -80,6 +82,32 @@ class FormActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
         cameraBtn2.setOnClickListener(this)
         cameraBtn3.setOnClickListener(this)
         cameraBtn4.setOnClickListener(this)
+
+        // Form (Contact Spinners)
+        qirInspectorInp.setOnFocusChangeListener { view, _ ->
+            populateContactSpinner(view, qirInspectorInp)
+        }
+
+        qirInspectorInp.setOnClickListener {
+            populateContactSpinner(it, qirInspectorInp)
+        }
+
+        notedByInp.setOnFocusChangeListener { view, _ ->
+            populateContactSpinner(view, notedByInp)
+        }
+
+        notedByInp.setOnClickListener {
+            populateContactSpinner(it, notedByInp)
+        }
+
+        approvedByInp.setOnFocusChangeListener { view, _ ->
+            populateContactSpinner(view, approvedByInp)
+        }
+
+        approvedByInp.setOnClickListener {
+            populateContactSpinner(it, approvedByInp)
+        }
+
 
         // Product Info
         val controlNo = "PETC-QIR/${Calendar.getInstance().get(Calendar.YEAR)}/"
@@ -113,7 +141,7 @@ class FormActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
 
         // shipment date
         val cal = Calendar.getInstance()
-        val dateSetListener = DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+        val dateSetListener = DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
             cal.set(Calendar.YEAR, year)
             cal.set(Calendar.MONTH, monthOfYear)
             cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
@@ -182,49 +210,89 @@ class FormActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
         return false
     }
 
+    private fun populateContactSpinner(view: View, inpView: AutoCompleteTextView) {
+        if (checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_DENIED) {
+            Snackbar.make(view, "Allow the app to contacts", Snackbar.LENGTH_INDEFINITE)
+                .setAction("GRANT") {
+                    if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_CONTACTS)) {
+                        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_CONTACTS),
+                            CONTACTS_PERMISSION_CODE)
+                    } else {
+                        val intent = Intent()
+                        intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                        val uri = Uri.fromParts("package", this.packageName, null)
+                        intent.data = uri
+                        startActivity(intent)
+                    }
+                }.show()
+        } else {
+            val contactsArrayAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line,
+                getContacts())
+            inpView.setAdapter(contactsArrayAdapter)
+        }
+    }
+
+    // Contacts
+    private fun getContacts(): List<String> {
+        val projection = arrayOf(ContactsContract.Contacts.DISPLAY_NAME_PRIMARY)
+        val cursor = contentResolver.query(
+            ContactsContract.Contacts.CONTENT_URI,
+            projection,
+            null,
+            null,
+            ContactsContract.Contacts.DISPLAY_NAME_PRIMARY
+        )
+        val contacts = arrayListOf<String>()
+        cursor?.use {
+            while (it.moveToNext()) {
+                contacts.add(it.getString(it.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME_PRIMARY)))
+            }
+        }
+        return contacts
+    }
+
     // Pictures
     private fun pickFromGallery(imageView: ImageView) {
-        if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) ==
-            PackageManager.PERMISSION_DENIED) {
-            //permission denied
-            val permissions = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
-            //show popup to request runtime permission
-            requestPermissions(permissions, GALLERY_PERMISSION_CODE)
-        }
-        else {
-            //permission already granted
+        if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+            Snackbar.make(scrollView, "Allow the app to access camera and storage", Snackbar.LENGTH_INDEFINITE)
+                .setAction("GRANT") {
+                    if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                            GALLERY_PERMISSION_CODE)
+                    } else {
+                        val intent = Intent()
+                        intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                        val uri = Uri.fromParts("package", this.packageName, null)
+                        intent.data = uri
+                        startActivity(intent)
+                    }
+                }.show()
+        } else {
             pickImageFromGallery(imageView)
         }
     }
 
     private fun openCamera(view: View) {
-        if (checkSelfPermission(Manifest.permission.CAMERA) ==
-            PackageManager.PERMISSION_DENIED && checkSelfPermission(
-            Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
-            // permission denied
-            val permissions = arrayOf(Manifest.permission.CAMERA,
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            requestPermissions(permissions, CAMERA_PERMISSION_CODE)
+        if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_DENIED || checkSelfPermission(
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED)  {
 
-        } else if (checkSelfPermission(Manifest.permission.CAMERA) ==
-            PackageManager.PERMISSION_DENIED && checkSelfPermission(
-                Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            // permission denied
-            val permissions = arrayOf(Manifest.permission.CAMERA,
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            requestPermissions(permissions, CAMERA_PERMISSION_CODE)
-        } else if (checkSelfPermission(Manifest.permission.CAMERA) ==
-            PackageManager.PERMISSION_GRANTED && checkSelfPermission(
-                Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
-            // permission denied
-            val permissions = arrayOf(Manifest.permission.CAMERA,
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            requestPermissions(permissions, CAMERA_PERMISSION_CODE)
+            Snackbar.make(scrollView, "Allow the app to access camera and storage", Snackbar.LENGTH_INDEFINITE)
+                .setAction("GRANT") {
+                    if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA) ||
+                        !ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                        ActivityCompat.requestPermissions(this, arrayOf(
+                            Manifest.permission.CAMERA,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                            CAMERA_PERMISSION_CODE)
+                    } else {
+                        val intent = Intent()
+                        intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                        val uri = Uri.fromParts("package", this.packageName, null)
+                        intent.data = uri
+                        startActivity(intent)
+                    }
+                }.show()
         } else {
-            // permission granted already
             captureImageFromCamera(view)
         }
     }
@@ -281,17 +349,20 @@ class FormActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         // permission from popup granted
         when(requestCode) {
-            GALLERY_PERMISSION_CODE -> if (grantResults.isNotEmpty() && grantResults[0] ==
-                PackageManager.PERMISSION_GRANTED) // this.pickImageFromGallery()
-                Toast.makeText(this, "Permission granted", Toast.LENGTH_SHORT).show()
-
-            CAMERA_PERMISSION_CODE -> if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            GALLERY_PERMISSION_CODE -> {
+                if (grantResults.isNotEmpty() && grantResults[0] ==
+                PackageManager.PERMISSION_GRANTED)
+                Snackbar.make(scrollView, "Permission granted", Snackbar.LENGTH_SHORT).show()
+            }
+            CAMERA_PERMISSION_CODE -> {
+                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)
                     && grantResults[1] == PackageManager.PERMISSION_GRANTED)
-                    Toast.makeText(this, "Permission granted", Toast.LENGTH_SHORT).show()
-
-            else -> {
-                // permission from popup denied
-                Toast.makeText(this, "Permission denied", Toast.LENGTH_SHORT).show()
+                    Snackbar.make(scrollView, "Permission granted", Snackbar.LENGTH_SHORT).show()
+            }
+            CONTACTS_PERMISSION_CODE -> {
+                if (grantResults.isNotEmpty() && grantResults[0] ==
+                PackageManager.PERMISSION_GRANTED)
+                Snackbar.make(scrollView, "Permission granted", Snackbar.LENGTH_SHORT).show()
             }
         }
     }
@@ -306,7 +377,7 @@ class FormActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
                         // check file size
                         val fileSize: Long = File(getPath(data.data!!)).length()
                         if ((fileSize * 0.000001) >= PICTURE_SIZE_LIMIT_MB) {
-                            return Toast.makeText(this, "File size must be less than $PICTURE_SIZE_LIMIT_MB MB", Toast.LENGTH_SHORT).show()
+                            return Snackbar.make(scrollView, "File size must be less than $PICTURE_SIZE_LIMIT_MB MB", Snackbar.LENGTH_SHORT).show()
                         }
                         image1Uri = data.data.toString()
                         image1.setImageURI(image1Uri.toString().toUri())
@@ -317,7 +388,7 @@ class FormActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
                     if (data?.data != null) {
                         val fileSize: Long = File(getPath(data.data!!)).length()
                         if ((fileSize * 0.000001) >= PICTURE_SIZE_LIMIT_MB) {
-                            return Toast.makeText(this, "File size must be less than $PICTURE_SIZE_LIMIT_MB MB", Toast.LENGTH_SHORT).show()
+                            return Snackbar.make(scrollView, "File size must be less than $PICTURE_SIZE_LIMIT_MB MB", Snackbar.LENGTH_SHORT).show()
                         }
                     }
                     image2Uri = data?.data.toString()
@@ -328,7 +399,7 @@ class FormActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
                     if (data?.data != null) {
                         val fileSize: Long = File(getPath(data.data!!)).length()
                         if ((fileSize * 0.000001) >= PICTURE_SIZE_LIMIT_MB) {
-                            return Toast.makeText(this, "File size must be less than $PICTURE_SIZE_LIMIT_MB MB", Toast.LENGTH_SHORT).show()
+                            return Snackbar.make(scrollView, "File size must be less than $PICTURE_SIZE_LIMIT_MB MB", Snackbar.LENGTH_SHORT).show()
                         }
                     }
                     image3Uri = data?.data.toString()
@@ -339,7 +410,7 @@ class FormActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
                     if (data?.data != null) {
                         val fileSize: Long = File(getPath(data.data!!)).length()
                         if ((fileSize * 0.000001) >= PICTURE_SIZE_LIMIT_MB) {
-                            return Toast.makeText(this, "File size must be less than $PICTURE_SIZE_LIMIT_MB MB", Toast.LENGTH_SHORT).show()
+                            return Snackbar.make(scrollView, "File size must be less than $PICTURE_SIZE_LIMIT_MB MB", Snackbar.LENGTH_SHORT).show()
                         }
                     }
                     image4Uri = data?.data.toString()
@@ -353,7 +424,7 @@ class FormActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
                     // check file size
                     val fileSize: Long = auxFile.length()
                     if ((fileSize * 0.000001) > PICTURE_SIZE_LIMIT_MB) {
-                        Toast.makeText(this, "Image must be less than $PICTURE_SIZE_LIMIT_MB MB", Toast.LENGTH_SHORT).show()
+                        return Snackbar.make(scrollView, "Image size must be less than $PICTURE_SIZE_LIMIT_MB MB", Snackbar.LENGTH_SHORT).show()
                     } else {
                         image1.setImageURI(image1Uri.toString().toUri())
                     }
@@ -369,7 +440,7 @@ class FormActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
                     // check file size
                     val fileSize: Long = auxFile.length()
                     if ((fileSize * 0.000001) > PICTURE_SIZE_LIMIT_MB) {
-                        Toast.makeText(this, "Image must be less than $PICTURE_SIZE_LIMIT_MB MB", Toast.LENGTH_SHORT).show()
+                        return Snackbar.make(scrollView, "Image size must be less than $PICTURE_SIZE_LIMIT_MB MB", Snackbar.LENGTH_SHORT).show()
                     } else {
                         image2.setImageURI(image2Uri.toString().toUri())
                     }
@@ -385,7 +456,7 @@ class FormActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
                     // check file size
                     val fileSize: Long = auxFile.length()
                     if ((fileSize * 0.000001) > PICTURE_SIZE_LIMIT_MB) {
-                        Toast.makeText(this, "Image must be less than $PICTURE_SIZE_LIMIT_MB MB", Toast.LENGTH_SHORT).show()
+                        return Snackbar.make(scrollView, "Image size must be less than $PICTURE_SIZE_LIMIT_MB MB", Snackbar.LENGTH_SHORT).show()
                     } else {
                         image3.setImageURI(image3Uri.toString().toUri())
                     }
@@ -401,7 +472,7 @@ class FormActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
                     // check file size
                     val fileSize: Long = auxFile.length()
                     if ((fileSize * 0.000001) > PICTURE_SIZE_LIMIT_MB) {
-                        Toast.makeText(this, "Image must be less than $PICTURE_SIZE_LIMIT_MB MB", Toast.LENGTH_SHORT).show()
+                        return Snackbar.make(scrollView, "Image size must be less than $PICTURE_SIZE_LIMIT_MB MB", Snackbar.LENGTH_SHORT).show()
                     } else {
                         image4.setImageURI(image4Uri.toString().toUri())
                     }
