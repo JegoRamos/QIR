@@ -3,6 +3,7 @@ package blackpearl.vas_tech.qir
 import android.Manifest
 import android.app.Activity
 import android.app.DatePickerDialog
+import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -29,7 +30,7 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
-private val TAG = "FormActivity"
+private const val TAG = "FormActivity"
 
 // permission codes
 private const val IMAGE_PICK_CODE_1 = 1001
@@ -112,7 +113,6 @@ class FormActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
         // Product Info
         val controlNo = "PETC-QIR/${Calendar.getInstance().get(Calendar.YEAR)}/"
         controlNoInp.setText(controlNo)
-
         modelInput.addTextChangedListener(object: TextWatcher {
             override fun afterTextChanged(p0: Editable?) {
                 // do nothing
@@ -158,6 +158,21 @@ class FormActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
                 cal.get(Calendar.MONTH),
                 cal.get(Calendar.DAY_OF_MONTH)).show()
         }
+
+        // Action Buttons
+        saveBtn.setOnClickListener {
+            if(saveToDatabase()) {
+                finish()
+            }
+        }
+
+        saveAndCreateBtn.setOnClickListener {
+            saveToDatabase()
+            val intent = Intent(this, FormActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
+
     }
 
     override fun onClick(view: View?) {
@@ -379,9 +394,12 @@ class FormActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
                         val fileSize: Long = File(getPath(data.data!!)).length()
                         if ((fileSize * 0.000001) >= PICTURE_SIZE_LIMIT_MB) {
                             return Snackbar.make(scrollView, "File size must be less than $PICTURE_SIZE_LIMIT_MB MB", Snackbar.LENGTH_SHORT).show()
+                        } else {
+                            image1Uri = File(getPath(data.data!!)).toString()
+                            image1.setImageURI(image1Uri.toString().toUri())
                         }
-                        image1Uri = data.data.toString()
-                        image1.setImageURI(image1Uri.toString().toUri())
+                        // image1Uri = data.data.toString()
+                       // image1.setImageURI(image1Uri.toString().toUri())
                     }
                 }
                 IMAGE_PICK_CODE_2 -> {
@@ -390,10 +408,13 @@ class FormActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
                         val fileSize: Long = File(getPath(data.data!!)).length()
                         if ((fileSize * 0.000001) >= PICTURE_SIZE_LIMIT_MB) {
                             return Snackbar.make(scrollView, "File size must be less than $PICTURE_SIZE_LIMIT_MB MB", Snackbar.LENGTH_SHORT).show()
+                        } else {
+                            image2Uri = File(getPath(data.data!!)).toString()
+                            image2.setImageURI(image2Uri.toString().toUri())
                         }
                     }
-                    image2Uri = data?.data.toString()
-                    image2.setImageURI(image2Uri.toString().toUri())
+                    // image2Uri = data?.data.toString()
+                    // image2.setImageURI(image2Uri.toString().toUri())
                 }
                 IMAGE_PICK_CODE_3 -> {
                     // check file size
@@ -401,10 +422,13 @@ class FormActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
                         val fileSize: Long = File(getPath(data.data!!)).length()
                         if ((fileSize * 0.000001) >= PICTURE_SIZE_LIMIT_MB) {
                             return Snackbar.make(scrollView, "File size must be less than $PICTURE_SIZE_LIMIT_MB MB", Snackbar.LENGTH_SHORT).show()
+                        } else {
+                            image3Uri = File(getPath(data.data!!)).toString()
+                            image3.setImageURI(image3Uri.toString().toUri())
                         }
                     }
-                    image3Uri = data?.data.toString()
-                    image3.setImageURI(image3Uri.toString().toUri())
+                    // image3Uri = data?.data.toString()
+                    // image3.setImageURI(image3Uri.toString().toUri())
                 }
                 IMAGE_PICK_CODE_4 ->  {
                     // check file size
@@ -412,10 +436,13 @@ class FormActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
                         val fileSize: Long = File(getPath(data.data!!)).length()
                         if ((fileSize * 0.000001) >= PICTURE_SIZE_LIMIT_MB) {
                             return Snackbar.make(scrollView, "File size must be less than $PICTURE_SIZE_LIMIT_MB MB", Snackbar.LENGTH_SHORT).show()
+                        } else {
+                            image4Uri = File(getPath(data.data!!)).toString()
+                            image4.setImageURI(image4Uri.toString().toUri())
                         }
                     }
-                    image4Uri = data?.data.toString()
-                    image4.setImageURI(image4Uri.toString().toUri())
+                    // image4Uri = data?.data.toString()
+                    // image4.setImageURI(image4Uri.toString().toUri())
                 }
                 CAMERA_CAPTURE_CODE_1 -> {
                     Log.i(TAG, "onActivityResults: ${mCurrentPhotoPath.toString()}")
@@ -514,6 +541,82 @@ class FormActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
         return cursor.getString(columnIndex)
     }
 
+    private fun saveToDatabase(): Boolean {
+        val values = ContentValues().apply {
+            // QIR Inspector
+            if (!qirInspectorInp.text.isNullOrEmpty() && qirInspectorInp.text.isNotBlank()) {
+                put(FormsContract.Columns.QIR_INSPECTOR, qirInspectorInp.text.toString())
+            }
+            else {
+                Snackbar.make(qirInspectorInp, "QIR Inspector field required", Snackbar.LENGTH_SHORT).show()
+                return false
+            }
+            // Control Number
+            put(FormsContract.Columns.CONTROL_NUMBER, controlNoInp.text.toString())
+            // Network
+            put(FormsContract.Columns.NETWORK, networkInp.text.toString())
+            // Model
+            if (!modelInput.text.isNullOrEmpty() && modelInput.text.isNotBlank()) {
+                put(FormsContract.Columns.MODEL, modelInput.text.toString())
+            }
+            else {
+                Snackbar.make(modelInput, "Model field required", Snackbar.LENGTH_SHORT).show()
+                return false
+            }
+            // Product Code
+            if (!productCodeInp.text.isNullOrEmpty() && productCodeInp.text.isNotBlank()) {
+                put(FormsContract.Columns.PRODUCT_CODE, productCodeInp.text.toString())
+            }
+            else {
+                Snackbar.make(productCodeInp, "Product Code field required", Snackbar.LENGTH_SHORT).show()
+                return false
+            }
+            // IMEI
+            put(FormsContract.Columns.IMEI, imeiInp.text.toString())
+            // Serial Number
+            put(FormsContract.Columns.SERIAL_NUMBER, serialNoInp.text.toString())
+            // Plant/Origin
+            put(FormsContract.Columns.PLANT_ORIGIN, plantOriginInp.text.toString())
+            // Shipment Date
+            put(FormsContract.Columns.SHIPMENT_DATE, shipmentDateInp.text.toString())
+            // AP
+            put(FormsContract.Columns.AP, apInp.text.toString())
+            // CP
+            put(FormsContract.Columns.CP, cpInp.text.toString())
+            // CSC
+            put(FormsContract.Columns.CSC, cscInp.text.toString())
+            // HW Version
+            put(FormsContract.Columns.HW_VERSION, hwVersionInp.text.toString())
+            // Defect Details
+            put(FormsContract.Columns.DEFECT_DETAILS, defectDetailsInp.text.toString())
+            // Image1
+            put(FormsContract.Columns.IMAGE_1, image1Uri)
+            // Image2
+            put(FormsContract.Columns.IMAGE_2, image2Uri)
+            // Image3
+            put(FormsContract.Columns.IMAGE_3, image3Uri)
+            // Image4
+            put(FormsContract.Columns.IMAGE_4, image4Uri)
+            // Noted By
+            put(FormsContract.Columns.NOTED_BY, notedByInp.text.toString())
+            // Approved By
+            put(FormsContract.Columns.APPROVED_BY, approvedByInp.text.toString())
+            // Date Created
+            val date = Date()
+            val formatter = SimpleDateFormat("MMM d, yyyy", Locale.getDefault())
+            val dateFormatted: String = formatter.format(date)
+            put(FormsContract.Columns.DATE_CREATED, dateFormatted)
+            // isActive
+            put(FormsContract.Columns.IS_ACTIVE, 1)
+            // isRemoved
+            put(FormsContract.Columns.IS_REMOVED, 0)
+        }
+        val uri = contentResolver.insert(FormsContract.CONTENT_URI, values)
+        Log.d(TAG,"New row id (in uri) is $uri")
+        Log.d(TAG, "id: ${FormsContract.getId(uri!!)}")
+        return true
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         Log.i(TAG, "onSaveInstanceState: $image1Uri")
@@ -538,4 +641,5 @@ class FormActivity : AppCompatActivity(), View.OnClickListener, View.OnLongClick
         image3.setImageURI(image3Uri?.toUri())
         image4.setImageURI(image4Uri?.toUri())
     }
+
 }

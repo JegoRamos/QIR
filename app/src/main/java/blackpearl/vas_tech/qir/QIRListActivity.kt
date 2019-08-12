@@ -14,7 +14,7 @@ class QIRListActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_qir_list)
 
-        val cursor = contentResolver.query(FormsContract.buildUriFromId(0),
+        val cursor = contentResolver.query(FormsContract.CONTENT_URI,
             null,
             null,
             null,
@@ -45,8 +45,11 @@ class QIRListActivity : AppCompatActivity() {
                         val image2 = getString(16)
                         val image3 = getString(17)
                         val image4 = getString(18)
-                        val isActive = getString(19)?.toBoolean()
-                        val isRemoved = getString(20)?.toBoolean()
+                        val notedBy = getString(19)
+                        val approvedBy = getString(20)
+                        val dateCreated = getString(21)
+                        val isActive = getString(22)
+                        val isRemoved = getString(23)
                         Log.d(TAG, """ID: $id, 
                             QIRInspector: $qirInspector, 
                             controlNumber: $controlNumber,
@@ -66,6 +69,9 @@ class QIRListActivity : AppCompatActivity() {
                             image2: $image2
                             image3: $image3
                             image4: $image4
+                            notedBy: $notedBy
+                            approvedBy: $approvedBy
+                            dateCreated: $dateCreated
                             isActive: $isActive
                             isRemoved: $isRemoved
                             """

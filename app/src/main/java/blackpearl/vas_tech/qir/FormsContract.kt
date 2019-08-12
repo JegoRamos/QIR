@@ -36,6 +36,7 @@ object FormsContract {
         const val IMAGE_4 = "Image4"
         const val NOTED_BY = "NotedBy"
         const val APPROVED_BY = "ApprovedBy"
+        const val DATE_CREATED = "DateCreated"
         const val IS_ACTIVE = "IsActive"
         const val IS_REMOVED = "IsRemoved"
     }

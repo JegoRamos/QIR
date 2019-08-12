@@ -4,6 +4,7 @@ import android.content.ContentProvider
 import android.content.ContentValues
 import android.content.UriMatcher
 import android.database.Cursor
+import android.database.SQLException
 import android.database.sqlite.SQLiteQueryBuilder
 import android.net.Uri
 import android.util.Log
@@ -50,6 +51,7 @@ class AppProvider : ContentProvider() {
 
         Log.d(TAG, "query called with URI: $uri")
         val match = uriMatcher.match(uri)
+        Log.d(TAG, "query match is $match")
         val queryBuilder = SQLiteQueryBuilder()
 
         when (match) {
@@ -68,16 +70,86 @@ class AppProvider : ContentProvider() {
         return cursor
     }
 
-    override fun insert(p0: Uri, p1: ContentValues?): Uri? {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun insert(uri: Uri, values: ContentValues?): Uri? {
+        Log.d(TAG, "insert called with URI: $uri")
+        val match = uriMatcher.match(uri)
+        Log.d(TAG, "insert match is $match")
+
+        val recordId: Long
+        val returnUri: Uri
+
+        when (match) {
+            FORMS -> {
+                val db = AppDatabase.getInstance(context!!).writableDatabase
+                recordId = db.insert(FormsContract.TABLE_NAME, null, values)
+                if (recordId != -1L) {
+                    returnUri = FormsContract.buildUriFromId(recordId)
+                } else {
+                    throw SQLException("Failed to insert. Uri was invalid: $uri")
+                }
+            }
+            else -> throw IllegalArgumentException("Unknown URI: $uri")
+        }
+        Log.d(TAG, "Exiting insert: returnUri: $returnUri")
+        return returnUri
     }
 
-    override fun update(p0: Uri, p1: ContentValues?, p2: String?, p3: Array<out String>?): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun update(uri: Uri, values: ContentValues?, selection: String?, selectionArgs: Array<out String>?): Int {
+        Log.d(TAG, "insert called with URI: $uri")
+        val match = uriMatcher.match(uri)
+        Log.d(TAG, "insert match is $match")
+
+        val count: Int
+        var selectionCriteria: String
+
+        when (match) {
+            FORMS -> {
+                val db = AppDatabase.getInstance(context!!).writableDatabase
+                count = db.update(FormsContract.TABLE_NAME, values, selection, selectionArgs)
+            }
+            FORMS_ID -> {
+                val db = AppDatabase.getInstance(context!!).writableDatabase
+                val id = FormsContract.getId(uri)
+                selectionCriteria = "${FormsContract.Columns.ID} = $id"
+
+                if (!selection.isNullOrEmpty()) {
+                    selectionCriteria += " AND $selection"
+                }
+                count = db.update(FormsContract.TABLE_NAME, values, selection, selectionArgs)
+            }
+            else -> throw IllegalArgumentException("Unknown URI: $uri")
+        }
+        Log.d(TAG,"Exiting update, returning count $count")
+        return count
     }
 
-    override fun delete(p0: Uri, p1: String?, p2: Array<out String>?): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun delete(uri: Uri, selection: String?, selectionArgs: Array<out String>?): Int {
+        Log.d(TAG, "delete called with URI: $uri")
+        val match = uriMatcher.match(uri)
+        Log.d(TAG, "delete match is $match")
+
+        val count: Int
+        var selectionCriteria: String
+
+        when (match) {
+            FORMS -> {
+                val db = AppDatabase.getInstance(context!!).writableDatabase
+                count = db.delete(FormsContract.TABLE_NAME, selection, selectionArgs)
+            }
+            FORMS_ID -> {
+                val db = AppDatabase.getInstance(context!!).writableDatabase
+                val id = FormsContract.getId(uri)
+                selectionCriteria = "${FormsContract.Columns.ID} = $id"
+
+                if (!selection.isNullOrEmpty()) {
+                    selectionCriteria += " AND $selection"
+                }
+                count = db.delete(FormsContract.TABLE_NAME, selection, selectionArgs)
+            }
+            else -> throw IllegalArgumentException("Unknown URI: $uri")
+        }
+        Log.d(TAG,"Exiting delete, returning count $count")
+        return count
     }
 
 }

@@ -38,8 +38,9 @@ internal class AppDatabase private constructor(context: Context) :
             ${FormsContract.Columns.IMAGE_4} TEXT,
             ${FormsContract.Columns.NOTED_BY} TEXT,
             ${FormsContract.Columns.APPROVED_BY} TEXT,
-            ${FormsContract.Columns.IS_ACTIVE} BOOLEAN NOT NULL,
-            ${FormsContract.Columns.IS_REMOVED} BOOLEAN NOT NULL
+            ${FormsContract.Columns.DATE_CREATED} TEXT,
+            ${FormsContract.Columns.IS_ACTIVE} INTEGER NOT NULL,
+            ${FormsContract.Columns.IS_REMOVED} INTEGER NOT NULL
             )
         """.trimIndent()
         Log.d(TAG, sSQL)
